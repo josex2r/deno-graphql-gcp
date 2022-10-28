@@ -72,28 +72,29 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup CWD
-        run: cd terraform
-
       - uses: hashicorp/setup-terraform@v2
 
       - name: Terraform fmt
         id: fmt
         run: terraform fmt -check
         continue-on-error: true
+        working-directory: ./terraform
 
       - name: Terraform Init
         id: init
         run: terraform init
+        working-directory: ./terraform
 
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
+        working-directory: ./terraform
 
       - name: Terraform Plan
         id: plan
         run: terraform plan -no-color
         continue-on-error: true
+        working-directory: ./terraform
 
       - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
@@ -155,3 +156,4 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
+        working-directory: ./terraform

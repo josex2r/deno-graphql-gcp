@@ -6,9 +6,16 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
+  TF_VAR_region: ${{ secrets.GCP_REGION }}
+  TF_VAR_app_name:  ${{ secrets.GCP_APP_NAME }}
+  TF_VAR_IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APP_NAME }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    name: Check project healthiness
 
     steps:
       - uses: actions/checkout@v3
@@ -28,3 +35,119 @@ jobs:
 
       - name: Run tests
         run: deno test --allow-none
+
+  build:
+    needs: [test]
+    runs-on: ubuntu-latest
+    name: Build image and push to Google Container Registry
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_email: ${{ secrets.GCP_EMAIL }}
+          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker --quiet
+
+      - name: Build Docker image
+        run: docker build . -t $TF_VAR_IMAGE
+
+      - name: Test Docker image
+        run: docker run $TF_VAR_IMAGE sh -c "deno test --allow-none"
+
+      - name: Push Docker image
+        run: docker push $TF_VAR_IMAGE
+
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-latest
+    name: Deploy image using Terraform
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup CWD
+        run: cd terraform
+
+      - uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color
+        continue-on-error: true
+
+      - uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // 1. Retrieve existing bot comments for the PR
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
+            const botComment = comments.find(comment => {
+              return comment.user.type === 'Bot' && comment.body.includes('Terraform Format and Style')
+            })
+
+            // 2. Prepare format of the comment
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            <details><summary>Validation Output</summary>
+
+            \`\`\`\n
+            ${{ steps.validate.outputs.stdout }}
+            \`\`\`
+
+            </details>
+
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+            // 3. If we have a comment, update it, otherwise create a new one
+            if (botComment) {
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }

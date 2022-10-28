@@ -2,7 +2,7 @@ import { Application, applyGraphQL, Router } from "../deps.ts";
 import { MessageResolver } from "./resolver/message.ts";
 import { MessageSchema } from "./schema/message.ts";
 
-const port = (Deno.env.get("BACKEND_PORT") || 4200) as number;
+const port = (Deno.env.get("BACKEND_PORT") || 8080) as number;
 const app = new Application();
 
 app.use(async (ctx, next) => {

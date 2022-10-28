@@ -1,0 +1,30 @@
+name: 'Terraform'
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Cache deps
+        run: deno cache deps.ts
+
+      - name: Cache app
+        run: deno cache src/main.ts
+
+      - name: Check lint issues
+        run: deno fmt --check
+
+      - name: Run tests
+        run: deno test --allow-none

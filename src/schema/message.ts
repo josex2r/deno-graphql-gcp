@@ -1,4 +1,4 @@
-import { gql } from "../dependencies.ts";
+import { gql } from "../../deps.ts";
 
 export const MessageSchema = gql`
 scalar Date
@@ -17,7 +17,7 @@ input MessageInput {
 }
 
 type Query {
-  getMessage(id: ID!): Message!
+  getMessage(id: ID!): Message
   getAllMessages: [Message]!
 }
 

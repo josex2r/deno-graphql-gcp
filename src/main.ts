@@ -1,15 +1,11 @@
-import { Application, applyGraphQL, Router } from "../deps.ts";
+import { Application, applyGraphQL, oakCors, Router } from "../deps.ts";
 import { MessageResolver } from "./resolver/message.ts";
 import { MessageSchema } from "./schema/message.ts";
 
 const port = (Deno.env.get("BACKEND_PORT") || 8080) as number;
 const app = new Application();
 
-app.use((ctx, next) => {
-  ctx.response.headers.set("Access-Control-Allow-Origin", "*");
-
-  return next();
-});
+app.use(oakCors());
 
 app.use(async (ctx, next) => {
   await next();

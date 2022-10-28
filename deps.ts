@@ -7,6 +7,7 @@ import {
 } from "https://raw.githubusercontent.com/adelsz/graphql-deno/v15.0.0/mod.ts";
 import LRU from "https://deno.land/x/lru_cache@6.0.0-deno.4/mod.ts";
 import * as uuid from "https://deno.land/std@0.161.0/uuid/mod.ts";
+import { oakCors } from "https://deno.land/x/cors/mod.ts";
 
 export {
   Application,
@@ -16,6 +17,7 @@ export {
   GraphQLScalarType,
   Kind,
   LRU,
+  oakCors,
   Router,
   uuid,
 };

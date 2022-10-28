@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "google" {
-  project = var.project
+  project = var.project_id
   region  = var.region
 }
 
@@ -26,7 +26,7 @@ resource "google_cloud_run_service" "run_service" {
   template {
     spec {
       containers {
-        image = "gcr.io/google-samples/hello-app:1.0"
+        image = var.image
       }
     }
   }

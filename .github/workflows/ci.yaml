@@ -11,6 +11,7 @@ env:
   TF_VAR_region: ${{ secrets.GCP_REGION }}
   TF_VAR_app_name:  ${{ secrets.GCP_APP_NAME }}
   TF_VAR_IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APP_NAME }}
+  GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
 
 jobs:
   test:

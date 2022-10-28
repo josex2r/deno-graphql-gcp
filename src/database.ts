@@ -1,4 +1,4 @@
-import { LRU, uuid } from "./dependencies.ts";
+import { LRU, uuid } from "../deps.ts";
 import { Message, MessageInput } from "./types.d.ts";
 
 const NAMESPACE_UUID = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";

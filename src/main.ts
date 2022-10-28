@@ -1,7 +1,8 @@
-import { Application, applyGraphQL, Router } from "./dependencies.ts";
+import { Application, applyGraphQL, Router } from "../deps.ts";
 import { MessageResolver } from "./resolver/message.ts";
 import { MessageSchema } from "./schema/message.ts";
 
+const port = (Deno.env.get("BACKEND_PORT") || 4200) as number;
 const app = new Application();
 
 app.use(async (ctx, next) => {
@@ -30,6 +31,6 @@ const GraphQLService = await applyGraphQL<Router>({
 
 app.use(GraphQLService.routes(), GraphQLService.allowedMethods());
 
-console.log("Server start at http://localhost:3000");
+console.log(`Server start at http://localhost:${port}`);
 
-await app.listen({ port: 3000 });
+await app.listen({ port });

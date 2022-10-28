@@ -11,7 +11,7 @@ env:
   TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
   TF_VAR_region: ${{ secrets.GCP_REGION }}
   TF_VAR_app_name:  ${{ secrets.GCP_APP_NAME }}
-  TF_VAR_IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APP_NAME }}
+  TF_VAR_image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APP_NAME }}
   GOOGLE_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
 
 jobs:
@@ -60,13 +60,13 @@ jobs:
         run: gcloud auth configure-docker --quiet
 
       - name: Build Docker image
-        run: docker build . -t $TF_VAR_IMAGE
+        run: docker build . -t $TF_VAR_image
 
       - name: Test Docker image
-        run: docker run $TF_VAR_IMAGE sh -c "deno test --allow-none"
+        run: docker run $TF_VAR_image sh -c "deno test --allow-none"
 
       - name: Push Docker image
-        run: docker push $TF_VAR_IMAGE
+        run: docker push $TF_VAR_image
 
   deploy:
     needs: [build]

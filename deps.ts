@@ -1,7 +1,4 @@
-import {
-  Application,
-  Router,
-} from "https://deno.land/x/oak@v6.2.0/mod.ts";
+import { Application, Router } from "https://deno.land/x/oak@v6.2.0/mod.ts";
 import { config } from "https://deno.land/x/dotenv/mod.ts";
 import { applyGraphQL, gql } from "https://deno.land/x/oak_graphql/mod.ts";
 import {

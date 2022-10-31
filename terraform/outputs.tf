@@ -1,4 +1,12 @@
 # Display the service URL
-output "service_url" {
-  value = google_cloud_run_service.run_service.status[0].url
+output "bucket_id" {
+  value = google_storage_bucket.static.id
+}
+
+output "load_balancer_ip" {
+  value = module.lb-http.external_ip
+}
+
+output "load_balancer_url" {
+  value = "http://${module.lb-http.external_ip}"
 }

@@ -8,6 +8,7 @@ This is a demo of a Deno app to test some technologies:
 - Github Actions to run an e2e workflow.
 - Terraform to instantiate GCP services.
 - Google Cloud Containers.
+- Google Cloud Single HTTP Load balancer (stattic + Cloud Run).
 
 > Scroll to EOF to see some diagrams.
 
@@ -44,9 +45,19 @@ deno lint
 deno test --allow-none
 ```
 
+## Deploy
+
+```bash
+terraform init
+terraform get
+terraform apply -auto -input=none
+```
+
 ## GCP diagram
 
 ![](./img/gcp.excalidraw.png)
+
+![](./img/load-balancer.excalidraw.png)
 
 ## Github Action Workflow
 
